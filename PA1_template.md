@@ -1,20 +1,22 @@
 #Report on activity monitoring data
 
 ##Data
-```{r, ECHO=TRUE}
+
+```r
 setwd("~/R")
 activity <- read.csv("activity.csv")
 nobs <- nrow(activity)
 ```
 
-Data on activity monitoring contain `r nobs` observations with:
+Data on activity monitoring contain 17568 observations with:
 
 * number of steps taking in a 5-minute interval (in variable step)
 * the date on which the measurement was taken in YYYY-MM-DD format (in variable date)
 * identifier for the 5-minute interval in which measurement was taken (in variable interval)
 
 ###Mean total number of steps per day
-```{r, ECHO=TRUE}
+
+```r
 dates <- as.vector(unique(activity$date))
 mysplit <- split(activity, activity$date)
 act.day <- data.frame(date = character(), steps = numeric(), stringsAsFactors = TRUE)
@@ -28,24 +30,29 @@ for (i in dates) {
 
 ###Histogram of the total number of steps per day
 
-```{r, echo=TRUE}
+
+```r
 hist(act.day$steps, breaks=10, xlab="Total number of steps per day", main="Histogram of the total number of steps")
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
 ###Mean and median of the total number of steps taken per day 
 
-```{r, echo=TRUE}
+
+```r
 act.day.mean <- mean(act.day$steps, na.rm=TRUE)
 act.day.median <- median(act.day$steps, na.rm=TRUE)
 ```
 
-Mean: `r act.day.mean`
+Mean: 9354.2295082
 
-Median:`r act.day.median`
+Median:10395
 
 ## Average daily activity pattern
 
-```{r, echo=TRUE}
+
+```r
 intervals <- unique(activity$interval)
 mysplit1 <- split(activity, activity$interval)
 act.int <- data.frame(interval = numeric(), avsteps = numeric())
@@ -59,9 +66,12 @@ for (i in intervals) {
 plot(strptime(sprintf("%04d", act.int$interval), format="%H%M"), act.int$avsteps, type="l", xlab="Time interval", ylab = "Average number of steps", main="Average number of steps by day time intervals")
 ```
 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+
 ### Time interval with max number of steps
 
-```{r, echo=TRUE}
+
+```r
 maxi <- which.max(act.int$avsteps)
 
 ##max.int <- strptime(sprintf("%04d", act.int$interval[maxi]), format="%H%M"))
@@ -70,21 +80,23 @@ max.int <- act.int$interval[maxi]
 max.avsteps <- act.int$avsteps[maxi]
 ```
 
-Interval: `r max.int`
+Interval: 835
 
-Max average number of steps per day: `r max.avsteps`
+Max average number of steps per day: 206.1698113
 
 ##Imputig missing values 
 
-```{r, echo=TRUE}
+
+```r
 vmis <- activity$steps[activity$steps=="NA"]
 nmis <- length(vmis)
 ```
-Number of missing values: `r nmis`
+Number of missing values: 2304
 
 ###Histogram of the total number of steps per day, data with imputed values
 
-```{r, echo=TRUE}
+
+```r
 act.imp <- data.frame(date = character(), interval = numeric(), steps = numeric(), stepsimp = numeric(), stringsAsFactors = TRUE)
 
 for (i in 1: nrow(activity)) {
@@ -109,26 +121,45 @@ for (i in dates) {
 hist(act.imp.day$steps, breaks=10, labels=TRUE,xlab="Total number of steps per day", main="Histogram of the total number of steps, imputed data")
 ```
 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
+
 ###Mean and median of the total number of steps taken per day, imputed data
 
-```{r, echo=TRUE}
+
+```r
 act.imp.day.mean <- mean(act.imp.day$steps)
 act.imp.day.median <- median(act.imp.day$steps)
 ```
 
-Mean: `r act.imp.day.mean`
+Mean: 1.0766189 &times; 10<sup>4</sup>
 
-Median: `r act.imp.day.median`
+Median: 1.0766189 &times; 10<sup>4</sup>
 
 ###t-test for difference of original data with imputed data
 
-```{r, echo=TRUE}
+
+```r
 t.test(act.day$steps, act.imp.day$steps)
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  act.day$steps and act.imp.day$steps
+## t = -1.6436, df = 110.196, p-value = 0.1031
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -3114.4271   290.5088
+## sample estimates:
+## mean of x mean of y 
+##   9354.23  10766.19
 ```
 
 ## Activity pattern for weekdays and weekends
 
-```{r, echo=TRUE}
+
+```r
 act.impwk <- data.frame(date = character(), weekd = character(), interval = numeric(), steps = numeric(), stepsimp = numeric(), stringsAsFactors = TRUE)
 
 for (i in 1: nrow(act.imp)) {
@@ -144,7 +175,8 @@ for (i in 1: nrow(act.imp)) {
 
 ###Plot by average number of steps for weekdays and weekends
 
-```{r, echo=TRUE}
+
+```r
 mysplit3 <- split(act.impwk, act.impwk$interval)
 act.int.weekd <- data.frame(interval = numeric(), avsteps = numeric(), weekd=character())
 
@@ -158,6 +190,25 @@ for (i in intervals) {
 
 library(lattice) 
 attach(act.int.weekd)
+```
+
+```
+## The following objects are masked from act.int.weekd (pos = 4):
+## 
+##     avsteps, interval, weekd
+## 
+## The following objects are masked from act.int.weekd (pos = 5):
+## 
+##     avsteps, interval, weekd
+## 
+## The following objects are masked from act.int.weekd (pos = 6):
+## 
+##     avsteps, interval, weekd
+```
+
+```r
 xyplot(act.int.weekd$avsteps~act.int.weekd$interval|act.int.weekd$weekd, main="", ylab="Number of steps", xlab="Time interval", type = "l")
 ```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
